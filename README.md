@@ -12,7 +12,7 @@ Technical Skills: Python, R, PostgreSQL
 
 ## Additional Education
 
-03/2003 - present — **Data Scientist: from Zero to Middle** | *LLC "Netology"*, online learning platform (Russia)
+03/2023 - present — **Data Scientist: from Zero to Middle** | *LLC "Netology"*, online learning platform (Russia)
 
 ## Work experience
 
