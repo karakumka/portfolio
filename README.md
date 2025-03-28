@@ -2,19 +2,19 @@
 
 Technical Skills: Python, R, PostgreSQL
 
-### Education
+## Education
 
-09/2024 - present — **MSc in Statistics for Data Science** | *Universidad Carlos III de Madrid* (Spain)
+09/2024 - present — **MSc in Statistics for Data Science** | *Universidad Carlos III de Madrid (Spain)*
 
-09/2014 - 07/2016 — **MA in Media Management** | *National Research University Higher School of Economics* (Russia)
+09/2014 - 07/2016 — **MA in Media Management** | *National Research University Higher School of Economics (Russia)*
 
-09/2010 - 07/2014 — **BA in Political Science** | *National Research University Higher School of Economics* (Russia)
+09/2010 - 07/2014 — **BA in Political Science** | *National Research University Higher School of Economics (Russia)*
 
-### Additional Education
+## Additional Education
 
 03/2003 - present — **Data Scientist: from Zero to Middle** | *LLC "Netology"*, online learning platform (Russia)
 
-### Work experience
+## Work experience
 
 05/2021 - 11/2024 — **Senior Data Analyst** @ *LLC "Media-Telecom" (Russia)*
 - Increased basic audience metrics of a key TV channel by 50% through detailed analysis and strategic overhaul of its content strategy, significantly boosting viewer engagement;
