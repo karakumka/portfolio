@@ -2,6 +2,12 @@
 
 Technical Skills: Python, R, PostgreSQL
 
+## Projects
+
+### [Taxi rides study](https://github.com/karakumka/portfolio/tree/main/Project1)
+
+Developed Principal Component Analysis from scratch. Applied k-medoids clustering to segment taxi users and identify key customer groups. Provided actionable insights into trip sizes and usage patterns.
+
 ## Education
 
 09/2024 - present — **MSc in Statistics for Data Science** | *Universidad Carlos III de Madrid (Spain)*
