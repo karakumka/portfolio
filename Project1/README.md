@@ -34,6 +34,7 @@ The **Cluster 3** likely represents regular weekday rides taken during work hour
 
 ![Clusters](./data/Clustering.png)
 
+The full version of the code can be found at this [link.](https://github.com/karakumka/portfolio/blob/main/Project1/Taxi_rides_Chicago.ipynb)
 
 
 
