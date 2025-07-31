@@ -1,0 +1,459 @@
+---
+title: "Face recognition"
+author: 
+    - Natalia Timshina
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+# Introduction
+
+In this project, we explore a two-step approach to facial recognition by combining Principal Component Analysis (PCA) with Fisher Discriminant Analysis (FDA). The motivation behind using PCA is to reduce the high-dimensional pixel space of facial images to a more manageable size while retaining the essential variance that characterizes the facial features. This reduction not only alleviates the computational burden but also helps to filter out noise and redundant information.
+
+Building on the PCA results, FDA is then employed to maximize the separation between different classes (identities). While PCA captures the overall variability in the data, FDA explicitly focuses on maximizing the between-class scatter relative to the within-class scatter. This complementary approach ensures that after reducing dimensionality, the most discriminative features are emphasized for the classification task. Furthermore, cross-validation with multiple parameter settings — such as varying the number of principal components and k-nearest neighbors — was performed to find the best set of hyperparameters. 
+
+# 1. Principal component analysis 
+
+```{r setup, include=FALSE}
+# libraries used
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "./images")
+library(dplyr)
+library(tidyr)
+library(MASS)
+library(stringr)
+library(OpenImageR)
+library(caret)
+library(pander)
+library(ggplot2)
+```
+
+```{r message=FALSE, warning=FALSE}
+rm(list = ls())
+
+image_files <- list.files(pattern = "\\.jpg$", full.names = TRUE)
+num_images <- length(image_files)
+cat("Number of existing images:", num_images, "\n")
+if(num_images == 0) stop("No JPEG images found.")
+num_images <- length(image_files)
+
+first_img <- readImage(image_files[1])
+if(length(dim(first_img)) == 3) {
+  first_gray <- 0.2989 * first_img[,,1] + 0.5870 * first_img[,,2] + 0.1140 * first_img[,,3]
+} else {
+  first_gray <- first_img
+}
+img_dim <- dim(first_gray)
+num_pixels <- prod(img_dim)
+
+set.seed(123)
+train_ratio <- 0.8
+train_indices <- sample(1:num_images, floor(train_ratio * num_images))
+test_indices <- setdiff(1:num_images, train_indices)
+
+X_train <- matrix(0, nrow = num_pixels, ncol = length(train_indices))
+labels_train <- sapply(image_files[train_indices], function(file) {
+  sub("^([0-9]+).*", "\\1", basename(file))
+})
+
+for(i in seq_along(train_indices)) {
+  img <- readImage(image_files[train_indices[i]])
+  if(length(dim(img)) == 3) {
+    img <- 0.2989 * img[,,1] + 0.5870 * img[,,2] + 0.1140 * img[,,3]
+  }
+  X_train[, i] <- as.vector(img)
+}
+
+X_test <- matrix(0, nrow = num_pixels, ncol = length(test_indices))
+labels_test <- sapply(image_files[test_indices], function(file) {
+  sub("^([0-9]+).*", "\\1", basename(file))
+})
+
+for(i in seq_along(test_indices)) {
+  img <- readImage(image_files[test_indices[i]])
+  if(length(dim(img)) == 3) {
+    img <- 0.2989 * img[,,1] + 0.5870 * img[,,2] + 0.1140 * img[,,3]
+  }
+  X_test[, i] <- as.vector(img)
+}
+```
+
+We build a function that implements the PCA on a set of observations (150 facial images) that returns:
+
+- Mean of observations
+- Matrix P whose columns are the eigenvectors
+- Vector D of eigenvalues 
+- Variance explainability
+
+```{r}
+pca_function <- function(X) {
+  mean_vector <- rowMeans(X)
+  X_centered <- X - mean_vector
+  n <- ncol(X_centered)
+  
+  G <- t(X_centered)
+  L <- (G %*% t(G)) / (n - 1)
+  
+  eig <- eigen(L)
+  eigenvalues <- eig$values
+  eigenvectors_small <- eig$vectors
+  
+  valid <- eigenvalues > 1e-10
+  eigenvalues <- eigenvalues[valid]
+  eigenvectors_small <- eigenvectors_small[, valid, drop = FALSE]
+  
+  eigenvectors_big <- X_centered %*% eigenvectors_small
+  singular_values <- sqrt(eigenvalues * (n - 1))
+  eigenvectors_big <- sweep(eigenvectors_big, 2, singular_values, "/")
+  
+  total_variance <- sum(eigenvalues)
+  variance_explained <- eigenvalues / total_variance
+  num_components <- which(cumsum(variance_explained) >= 0.95)[1]
+  
+  list(
+    mean = mean_vector,
+    P = eigenvectors_big,
+    D = eigenvalues,
+    variance_explained = variance_explained,
+    num_components = num_components
+  )
+}
+
+pca_model <- pca_function(X_train)
+
+cat("Top eigenvalues:\n", head(pca_model$D), "\n")
+cat("Variance explainability:\n", head(pca_model$variance_explained), "\n")  
+cat("Number of components needed for 95% variance:", pca_model$num_components, "\n")
+```
+
+- First principal component (PC1) explains about 27.7% of the total variance. While, PC2 explains 16.5% and so on.
+- We choose as a threshold for variance explained = 95% of explained variability, in order to ensure that enough discriminative facial details are preserved.
+- After applying the threshold for variance explained = 0.95 , we'd need 29 principal components to reach the variance explainability required.
+
+# 2. Fisher discriminant analysis
+
+## Finding the Fisher discriminants
+
+To implement a facial recognizer based on Fisher discriminant analysis, we need to perform the following steps.
+
+1. Preprocess images
+
+We read the names of our photos into a list and iterate over this list using the library `OpenImageR`. Then, we transform each of our pictures into a grayscaled image and flatten it to a vector. To reduce the number of dimensions, we project the vectors into PCA space in such a way that 95% of the variance is kept. In the end, we create a full dataframe with the file names and associated class (person).
+
+2. Calculate covariance matrices
+
+In order to find Fisher discriminants, we have to calculate the between class covariance matrix and the within class covariance matrix for several populations. To do so, we use the formulas below:
+
+$$ S_W = \sum_{i=1}^k \sum_{j \in c_i} \bigl(\mathbf{X}_j - \mathbf{m}_i\bigr)\bigl(\mathbf{X}_j - \mathbf{m}_i\bigr)^\top$$
+
+$$S_B = \sum_{i=1}^k n_i \bigl(\mathbf{m}_i - \mathbf{m}\bigr)\bigl(\mathbf{m}_i - \mathbf{m}\bigr)^\top $$
+
+where $k$ is the number of classes, $m$ is the mean of the total dataset, $m_i$ is the mean of the $i$th class, $n_i$ is the number of observations in the $i$th class.
+
+3. Extract eigen values and eigen vectors
+
+Next, we multiply $S_W^{-1}S_B$ and find the eigen values and eigen vectors of this matrix. The maximum number of Fisher discriminants equals $min(p, k - 1)$ meaning that in our case this number equals 24. To calculate the variance explained by each Fisher discriminant, we divide each eigen value to the sum of eigen values. The corresponding eigen vectors would form our projection matrix.
+
+```{r, warning=FALSE}
+FDA <- function(X_train, labels_train, pca_model, num_pca = 29) {
+  # Project into PCA space
+  X_proj <- t(X_train) %*% pca_model$P[, 1:num_pca]
+  df <- as.data.frame(X_proj)
+  df$c <- as.integer(labels_train)
+
+  # Compute class means
+  grouped_means <- df |>
+    group_by(c) |>
+    summarise(across(everything(), mean), count = n(), .groups = "drop")
+
+  means <- as.matrix(grouped_means[, 2:(ncol(grouped_means) - 1)])
+  global_mean <- colMeans(means)
+
+  # Compute S_between
+  S_between <- matrix(0, ncol(means), ncol(means))
+  for (i in 1:nrow(grouped_means)) {
+    diff <- matrix(means[i, ] - global_mean, ncol = 1)
+    S_between <- S_between + grouped_means$count[i] * (diff %*% t(diff))
+  }
+
+  # Compute S_within
+  S_within <- matrix(0, ncol(means), ncol(means))
+  for (class_id in grouped_means$c) {
+    class_data <- df |> filter(c == class_id) |> dplyr::select(-c) |> as.matrix()
+    mean_class <- as.numeric(means[which(grouped_means$c == class_id), ])
+    diff_matrix <- sweep(class_data, 2, mean_class, FUN = "-")
+    S_within <- S_within + t(diff_matrix) %*% diff_matrix
+  }
+
+  # Solve generalized eigenproblem
+  M <- solve(S_within) %*% S_between
+  ev <- eigen(M)
+
+  n_classes <- length(unique(df$c))
+  max_discriminants <- n_classes - 1
+  top_eigenvalues <- ev$values[1:max_discriminants]
+  P <- ev$vectors[, 1:max_discriminants, drop = FALSE]
+  D <- top_eigenvalues / sum(top_eigenvalues)
+
+  return(list(global_mean = global_mean, P = Re(P), D = Re(D), df = df))
+}
+
+results <- FDA(X_train, labels_train, pca_model)
+```
+
+## Analyzing the variance explained by each Fisher discriminant
+
+```{r}
+sumfun = function(x,start,end){
+  return(sum(x[start:end]))
+}
+
+x = c()
+for (i in 1:24){
+  x = append(x, sumfun(results$D, 1, i))
+}
+
+# individual variance explained by each Fisher discriminant
+plot(results$D, type = "b", col = "blue", pch = 16, ylim = c(0,1),
+     main = "Variance Explained by Fisher Discriminants",
+     xlab = "Fisher Discriminant Index", ylab = "Variance Explained")
+
+# cumulative variance explained
+lines(x, type = "b", col = "red", pch = 16)
+legend("topright", legend = c("Individual Variance", "Cumulative Variance"),
+       col = c("blue", "red"), pch = 16)
+```
+
+As we can see on the plot, the first Fisher discriminant explains 35% of the variance. To reach around 80% of explainability, we will consider the number that is bigger than 5.
+
+## Calculating the inter- and intra-class distances and finding the threshold 
+
+Next, we iterate over the number of Fisher discriminants to see which value gives us the best separation. We create a dataframe that stores the maximum value of intra-class distances and minimum value of inter-class distances. In the best case scenario, they must be as far from each other as possible. We calculate the difference of these values and sort the table by this column in descending order.
+
+```{r}
+df_results <- data.frame()
+
+df <- results$df
+global_mean <- results$global_mean
+
+df_m <- df |> dplyr::select(-c) |> as.matrix()
+df_labels <- df$c
+
+df_centered <- sweep(df_m, 2, global_mean, FUN = "-")
+
+for (i in 1:24) {
+  W <- results$P[, 1:i, drop = FALSE]
+  df_proj <- df_centered %*% W
+
+  distances <- as.matrix(dist(df_proj, method = "euclidean"))
+  intra_dists <- c()
+  inter_dists <- c()
+  n <- nrow(df_proj)
+
+  for (p in 1:(n - 1)) {
+    for (q in (p + 1):n) {
+      if (df_labels[p] == df_labels[q]) {
+        intra_dists <- c(intra_dists, distances[p, q])
+      } else {
+        inter_dists <- c(inter_dists, distances[p, q])
+      }
+    }
+  }
+
+  df_temp <- data.frame(
+    left_ = max(intra_dists),
+    right_ = min(inter_dists),
+    diff = min(inter_dists) - max(intra_dists)
+  )
+
+  df_results <- rbind(df_results, df_temp)
+}
+
+df_results <- df_results[order(df_results$diff, decreasing = TRUE), ]
+pander(df_results)
+```
+
+We get that the best separation is given by 18 Fisher discriminants.
+
+```{r}
+cat('The percentage of the variance retaining by 18 Fisher discriminant dimensions:', 
+    sumfun(results$D, 1, 18))
+```
+
+To obtain the threshold, we calculate:
+
+```{r}
+threshold = (5.152+9.916)/2
+```
+
+$$threshold = \frac{left+right}{2} = \frac{5.152 + 9.916}{2} = 7.534$$
+
+Let's plot the result.
+
+```{r}
+W = results$P[, 1:18, drop = FALSE]
+df_proj = df_centered%*%W
+
+distances = as.matrix(dist(df_proj, method = "euclidean"))
+intra_dists = c()
+inter_dists = c()
+n = nrow(df_proj)
+    for (i in 1:(n-1)) {
+      for (j in (i+1):n) {
+        if (df_labels[i] == df_labels[j]) {
+          intra_dists = c(intra_dists, distances[i, j])
+        } else {
+          inter_dists = c(inter_dists, distances[i, j])
+    }
+  }
+}
+
+df_intra = data.frame(distance = intra_dists, type = rep("Intra-class", length(intra_dists)))
+df_inter = data.frame(distance = inter_dists, type = rep("Inter-class", length(inter_dists)))
+df_plot = rbind(df_intra, df_inter)
+
+ggplot(df_plot, aes(x = distance, fill = type)) +
+  geom_histogram(alpha = 0.3, position = "identity", bins = 30) +
+  labs(title = "Histogram of Intra- and Inter-Class Distances",
+       x = "Distance", y = "Count") +
+  scale_fill_manual(values = c("Intra-class" = "blue", "Inter-class" = "red", fill))
+```
+
+From the histogram of intra-class and inter-class distances, we get that our FDA provides a decent class separation. The intra-class distances are centered at relatively low values which suggests that at least some samples in the same class are close together. At the same time, the inter-class distances spread across higher distance values, indicating that different-class samples are farther apart.
+
+## Training and testing the data with cross-validation
+
+As it's necessary to choose the best metric for our classifier, we initialize a grid search of the parameters that we can establish. The possible number of neighbors to be considered is from 1 to 5. As a similarity metric, we consider one of the following: "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski".
+
+Also, we split our data on training and validating sets, center them and project into Fisher space. Then, we calculate the distances from each validation sample to every training sample, get indices of the k nearest neighbors and label the pictures based on the proximity. To evaluate the performance of the classifier, we run a code for 5-fold cross-validation and estimate the average fold accuracy for each set of hyperparameters.
+
+```{r}
+# the grid of hyperparameters
+grid_params <- expand.grid(
+  knn_k = 1:5,     
+  sim_metric = c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"),
+  stringsAsFactors = FALSE
+)
+
+# initialize 5-fold cross-validation
+set.seed(42)
+df <- results$df
+n <- nrow(df)
+k_folds <- 5
+folds <- sample(1:k_folds, n, replace = TRUE)
+
+grid_results <- data.frame()
+
+for (i in 1:nrow(grid_params)) {
+  k_val <- grid_params$knn_k[i]
+  sim_name <- grid_params$sim_metric[i]
+  
+  cv_acc <- c()  # store accuracy for each fold
+  
+  for (fold in 1:k_folds) {
+    train_cv <- df[folds != fold, ]
+    valid_cv <- df[folds == fold, ]
+
+    train_labels <- train_cv$c
+    valid_labels <- valid_cv$c
+    
+    W <- results$P[, 1:12, drop = FALSE]
+
+    X_train_proj <- as.matrix(train_cv |> dplyr::select(-c))
+    X_valid_proj <- as.matrix(valid_cv |> dplyr::select(-c))
+    
+    predictions <- sapply(1:nrow(X_valid_proj), function(j) {
+      combined <- rbind(X_valid_proj[j, ], X_train_proj)
+      dmat <- as.matrix(dist(combined, method = sim_name))
+      dists <- dmat[1, -1]
+      nearest_idx <- order(dists)[1:k_val]
+      vote <- as.numeric(names(sort(table(train_labels[nearest_idx]), decreasing = TRUE))[1])
+      avg_dist <- mean(dists[nearest_idx])
+      
+      if (avg_dist < threshold) {
+        return(vote)
+      } else {
+        return(0)
+      }
+    })
+    
+    fold_acc <- mean(predictions == valid_labels)
+    cv_acc <- c(cv_acc, fold_acc)
+  }
+
+  avg_acc <- mean(cv_acc)
+  grid_results <- rbind(grid_results, 
+                        data.frame(knn_k = k_val,
+                                   sim_metric = sim_name,
+                                   accuracy = avg_acc))
+}
+
+# best hyperparameters
+best_params <- grid_results[which.max(grid_results$accuracy), ]
+pander(best_params)
+
+# store final parameters
+final_params <- list(
+  fisher_model = results,
+  knn_k = best_params$knn_k, 
+  sim_metric = best_params$sim_metric,
+  pca_model = pca_model
+)
+```
+
+## Implementing the classifier
+
+From the step above we get the set of the final hyperparameters that will be used in our `classifier` function.
+
+```{r}
+# Project X_train into PCA space
+X_train_pca <- t(X_train) %*% pca_model$P[, 1:29]
+
+# Center and project into Fisher space
+X_train_centered <- sweep(X_train_pca, 2, results$global_mean, "-")
+df_train_proj <- X_train_centered %*% results$P[, 1:18]
+
+df_labels <- as.integer(labels_train)
+
+vector_classifier <- function(x, parameters) {
+  x <- matrix(x, nrow = 1)
+  x_pca <- x %*% parameters$pca_model$P[, 1:29]
+
+  # Center and FDA projection
+  x_centered <- x_pca - parameters$fisher_model$global_mean
+  x_proj <- x_centered %*% parameters$fisher_model$P[, 1:18]
+  
+  # Compute distances
+  combined <- rbind(x_proj, df_train_proj)
+  dmat <- as.matrix(dist(combined, method = parameters$sim_metric))
+  dists <- dmat[1, -1]
+
+  # k-NN voting
+  k <- parameters$knn_k
+  nearest_idx <- order(dists)[1:k]
+  vote <- names(sort(table(df_labels[nearest_idx]), decreasing = TRUE))[1]
+  avg_dist <- mean(dists[nearest_idx])
+  
+  if (avg_dist < threshold) {
+    return(as.numeric(vote))
+  } else {
+    return(0)
+  }
+}
+```
+
+Next, we apply the trained classifier to the test set.
+
+```{r}
+predicted_labels <- apply(X_test, 2, function(col) vector_classifier(col, final_params))
+test_accuracy <- mean(predicted_labels == as.integer(labels_test))
+cat("Test Accuracy:", test_accuracy, "\n")
+```
+
+The model achieves a test accuracy of 0.97, indicating a strong generalization performance on previously unseen data.
+
+# Conclusion
+
+The integrated PCA-FDA framework demonstrates the effectiveness of combining dimensionality reduction with discriminative analysis for facial recognition tasks. PCA efficiently reduces the complexity of the original high-dimensional image data by projecting it onto a lower-dimensional subspace that preserves most of the variance. This not only accelerates computations but also enhances the robustness of the classification process.
+
+Subsequently, FDA (Fisher Discriminant Analysis) refines these PCA projections by maximizing class separability, resulting in a more compact and discriminative feature representation. Together, these steps lead to improved classification accuracy and more interpretable decision boundaries in the feature space.
+
