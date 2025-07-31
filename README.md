@@ -4,6 +4,10 @@ Technical Skills: Python, R, PostgreSQL
 
 ## Projects
 
+### [Оценка качества модели суммаризации новостных сообщений](https://github.com/karakumka/portfolio/tree/main/Project2)
+
+Реализован пайплайн: парсинг новостных сообщений с Lenta.Ru, автоматическая суммаризация с использованием `ruT5-base-summarizer` (трансформеры), последующая оценка качества с использованием метрик `rouge`, `bertscore`, а также проведение вычитки.
+
 ### [Taxi rides study](https://github.com/karakumka/portfolio/tree/main/Project1)
 
 Developed Principal Component Analysis from scratch. Applied k-medoids clustering to segment taxi users and identify key customer groups. Provided actionable insights into trip sizes and usage patterns.
