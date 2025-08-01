@@ -3,6 +3,8 @@
 
 In this project, we use 150 images of 25 different individuals to train a classifier capable of identifying the person in a given image (predicting its class).
 
+![Some images](./plots/photos.png)
+
 ### Analysis conducted
 
 #### PCA-FDA Classifier
