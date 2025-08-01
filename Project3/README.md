@@ -21,7 +21,7 @@ In the second part, we implement a deep learning-based approach:
 
 - Design and train a **Convolutional Neural Network (CNN)** architecture.
 - Use **K-fold cross-validation**: for each split, the model is trained and the validation accuracy is recorded.
-- Compare the CNN results to those obtained using the PCA–FDA pipeline.
+- Compare the CNN results to those obtained using the PCA-FDA pipeline.
 
 ### Results obtained
 
@@ -39,4 +39,6 @@ The **mean cross-validation accuracy across 5 folds is 0.967**, demonstrating st
 
 The full version of the code can be found at this [link](https://github.com/karakumka/portfolio/blob/main/Project3/CNN_classifier.ipynb).
 
-This result is consistent with the test accuracy obtained using the PCA-FDA-based classifier, suggesting that the simpler, projection-based approach can achieve performance comparable to more complex deep learning models under the given conditions.
+### Conclusion
+
+Both the CNN and the PCA-FDA-based classifier demonstrate strong performance on the classification task, achieving comparable accuracy under the given conditions.
