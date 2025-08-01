@@ -32,11 +32,11 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 
 ## Дополнительное образование
 
-03/2023 - н.в. — **Data Scientist: с нуля до middle** | *ООО "Нетология"*
+03/2023 - н.в. — **Data Science: с нуля до middle** | *ООО "Нетология"*
 
-07/2025 - интенсив по **А/В‑тестированию** | *ШАД ("Яндекс")*
+07/2025 — интенсив по **А/В‑тестированию** | *ШАД ("Яндекс")*
 
-05/2025 - **"Deep Learning: Unlocking the Power of Intelligent Systems"** course | *Instituto Flores de Lemus (UC3M)*
+05/2025 — **"Deep Learning: Unlocking the Power of Intelligent Systems"** course | *Instituto Flores de Lemus (UC3M)*
 
 ## Опыт работы
 
