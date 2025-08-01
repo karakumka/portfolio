@@ -1,7 +1,7 @@
 # Data Scientist
 
 **Технологический стек:**
-- Python: NumPy, Pandas, Matplotlib, Seaborn
+- Python: NumPy, Pandas, SciPy, Matplotlib, Seaborn
 - Machine Learning: Scikit‑Learn (classification, regression, clustering), XGBoost
 - Deep Learning: TensorFlow/Keras
 - R: tidyverse, caret, rcpp, ggplot2
@@ -39,6 +39,10 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 05/2025 - **"Deep Learning: Unlocking the Power of Intelligent Systems"** course | *Instituto Flores de Lemus (UC3M)*
 
 ## Опыт работы
+
+11/2024 - 05/2025 - **Аналитик данных** @ ASPRONA Albacete / U4Impact (Испания)
+- Подготовила аналитический отчёт с рекомендациями по интервенционной программе НКО и её влиянию на качество жизни людей с интеллектуальной недостаточностью. На основе результатов ASPRONA инициировала два новых проекта.
+- Проводила анализ смешанных данных (категориальных и количественных), включая обработку, визуализацию и интерпретацию результатов. Применяла методы кластеризации и анализ по шкале INICO-FEAPS для выявления профилей участников и оценки эффектов вмешательства.
 
 05/2023 - 11/2024 — **Старший аналитик данных** @ *ООО "Медиа Телеком"*
 - Увеличила базовые показатели аудитории ключевого телеканала на 50% благодаря стратегическому пересмотру контент-стратегии;
