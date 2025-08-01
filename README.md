@@ -1,41 +1,56 @@
 # Data Scientist
 
-Technical Skills: Python, R, PostgreSQL
+**Технологический стек:**
+- Python: NumPy, Pandas, Matplotlib, Seaborn
+- Machine Learning: Scikit‑Learn (classification, regression, clustering), XGBoost
+- Deep Learning: TensorFlow/Keras
+- R: tidyverse, caret, rcpp, ggplot2
+- Databases: PostgreSQL
+- Version Control: Git, GitHub
 
-## Projects
+## Проекты
 
 ### [Оценка качества модели суммаризации новостных сообщений](https://github.com/karakumka/portfolio/tree/main/Project2)
 
 Реализован пайплайн: парсинг новостных сообщений с Lenta.Ru, автоматическая суммаризация с использованием `ruT5-base-summarizer` (трансформеры), последующая оценка качества с использованием метрик `rouge`, `bertscore`, а также проведение вычитки.
 
+### [Face Recognition study](https://github.com/karakumka/portfolio/tree/main/Project3)
+
+Built and compared facial recognition models using projection-based (PCA-FDA) and deep learning (CNN) approaches, demonstrating high classification accuracy and generalization.
+
 ### [Taxi rides study](https://github.com/karakumka/portfolio/tree/main/Project1)
 
 Developed Principal Component Analysis from scratch. Applied k-medoids clustering to segment taxi users and identify key customer groups. Provided actionable insights into trip sizes and usage patterns.
 
-## Education
+## Образование
 
-09/2024 - present — **MSc in Statistics for Data Science** | *Universidad Carlos III de Madrid (Spain)*
+2024 - 2025 — **MSc in Statistics for Data Science** (in English) | *Universidad Carlos III de Madrid*
 
-09/2014 - 07/2016 — **MA in Media Management** | *National Research University Higher School of Economics (Russia)*
+2014 - 2016 — **Магистратура по направлению "Менеджмент в СМИ"** | *Национальный исследовательский университет "Высшая школа экономики"*
 
-09/2010 - 07/2014 — **BA in Political Science** | *National Research University Higher School of Economics (Russia)*
+2010 - 2014 — **Бакалавриат по направлению "Политические исследования"** | *Национальный исследовательский университет "Высшая школа экономики"*
 
-## Additional Education
+## Дополнительное образование
 
-03/2023 - present — **Data Scientist: from Zero to Middle** | *LLC "Netology", online learning platform (Russia)*
+03/2023 - н.в. — **Data Scientist: с нуля до middle** | *ООО "Нетология"*
+07/2025 - интенсив по **А/В‑тестированию** | *ШАД ("Яндекс")*
+05/2025 - **"Deep Learning: Unlocking the Power of Intelligent Systems"** course | *Instituto Flores de Lemus (UC3M)*
 
-## Work experience
+## Опыт работы
 
-05/2021 - 11/2024 — **Senior Data Analyst** @ *LLC "Media-Telecom" (Russia)*
-- Increased basic audience metrics of a key TV channel by 50% through detailed analysis and strategic overhaul of its content strategy, significantly boosting viewer engagement;
-- Developed web scraping scripts to parse websites and conducted thorough data analysis on the extracted information to identify trends and actionable insights;
-- Optimized data analysis processes for a diverse portfolio of 15 pay-TV channels, ensuring accurate performance tracking.
+05/2023 - 11/2024 — **Старший аналитик данных** @ *ООО "Медиа Телеком"*
+- Увеличила базовые показатели аудитории ключевого телеканала на 50% благодаря стратегическому пересмотру контент-стратегии;
+- Оптимизировала процессы обработки данных для 15 платных телеканалов, обеспечив точное отслеживание показателей и формирование практических инсайтов;
+- Использовала методы парсинга сайтов для извлечения и анализа данных, что позволило разработать практические рекомендации в отношении новых направлений бизнеса.
 
-05/2018 - 05/2021 — **Data Analyst** @ *Sony Pictures Television (Russia)*
-- Directed and enhanced data analysis processes for a portfolio of 3 pay-TV channels, ensuring precise performance measurement and strategic insights;
-- Managed 20+ ad barter transactions to promote Sony Pictures movies, successfully negotiating and securing promotional opportunities across the TV channels of the portfolio;
-- Developed compelling seller decks for Sony Pictures TV shows by analyzing audience data to tailor presentations for potential buyers.
+12/2020 - 05/2023 — **Главный специалист Отдела по общественным связям** @ *АНО "Диалог Регионы"*
+- Готовила ежедневные аналитические справки о медийной репрезентации компании и её региональных отделений с рекомендациями (опыт работы в системе "Медиалогия").
 
-10/2013 - 05/2018 — **Data Analyst** @ *TV Channel "Russia"*
-- Analyzed daily performance metrics for the TV channel and its competitors, providing insights to enhance competitive positioning and strategic decision-making;
-- Compiled and presented detailed audience analysis reports for weekly team meetings, facilitating data-driven discussions and strategic planning.
+05/2018 - 12/2020 — **Аналитик данных** @ *SPTI Networks Восток*
+- Оптимизировала процесс анализа данных о телесмотрении портфеля трех платных телеканалов Sony Pictures Television;
+- Организовывала бартерные сделки по размещению рекламы для продвижения фильмов Sony Pictures, согласовывая рекламные возможности на телеканалах российского подразделения SPT;
+- Разрабатывала презентационные материалы для продаж телешоу Sony Pictures, адаптируя предложения под потенциальных покупателей на основании анализа их аудитории.
+
+10/2013 - 05/2018 — **Аналитик данных** @ *ТК "Россия"*
+- Готовила ежедневные и еженедельные отчеты о телесмотрении в России и регионах (проекты TV Index, TV Index Plus TNS Россия);
+- Анализировала программную сетку телеканала "Россия 1" и конкурентного окружения.
