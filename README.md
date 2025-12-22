@@ -45,7 +45,7 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 
 ## Дополнительное образование
 
-10/2025 - н.в. - **Школа аналитиков данных** | МТС
+10/2025 - н.в. — **Школа аналитиков данных** | МТС
 
 03/2023 - н.в. — **Data Science: с нуля до middle** | *ООО "Нетология"*
 
