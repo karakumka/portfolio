@@ -4,13 +4,20 @@
 
 **Технологический стек:**
 - Python: NumPy, Pandas, SciPy, Matplotlib, Seaborn
-- Machine Learning: Scikit‑Learn (classification, regression, clustering), XGBoost
-- Deep Learning: TensorFlow/Keras
+- Machine Learning: Scikit‑Learn (classification, regression, clustering), XGBoost, CatBoost
+- Deep Learning: TensorFlow/Keras, PyTorch
+- LLM & Transformers: Hugging Face Transformers - T5/ruT5, семейство BERT, Qwen3
+- Backend & APIs: FastMCP, FastAPI/Starlette, Uvicorn, REST/HTTP, JSON, интеграция с внешними API
 - R: tidyverse, caret, rcpp, ggplot2
 - Databases: PostgreSQL
+- Infra & MLOps: Docker, MCP, деплой AI-сервисов в облаке
 - Version Control: Git, GitHub
 
 ## Проекты
+
+### [Brand Health AI Agent](https://github.com/karakumka/brand_health_analyzer)
+
+Реализован AI-сервис для анализа новостного фона брендов: MCP-сервер на Python с инструментами (получение статей, агрегирование статистики и сравнение брендов) поверх NewsAPI, упакованный в Docker и интегрированный с AI-агентом в Cloud.ru для работы с запросами на естественном языке. Решение подготовлено в рамках хакатона AI DevTools Hack.
 
 ### [Оценка качества модели суммаризации новостных сообщений](https://github.com/karakumka/portfolio/tree/main/Project2)
 
@@ -34,6 +41,8 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 
 ## Дополнительное образование
 
+10/2025 - н.в. - **Школа аналитиков данных** | МТС
+
 03/2023 - н.в. — **Data Science: с нуля до middle** | *ООО "Нетология"*
 
 07/2025 — интенсив по **А/В‑тестированию** | *ШАД ("Яндекс")*
@@ -42,7 +51,7 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 
 ## Опыт работы
 
-11/2024 - 05/2025 - **Аналитик данных** @ ASPRONA Albacete / U4Impact (Испания)
+11/2024 - 05/2025 - **Data Scientist** @ ASPRONA Albacete / U4Impact (Испания)
 - Подготовила аналитический отчёт с рекомендациями по интервенционной программе НКО и её влиянию на качество жизни людей с интеллектуальной недостаточностью. На основе результатов ASPRONA инициировала два новых проекта;
 - Проводила анализ смешанных данных (категориальных и количественных), включая обработку, визуализацию и интерпретацию результатов. Применяла методы кластеризации и анализ по шкале INICO-FEAPS для выявления профилей участников и оценки эффектов вмешательства.
 
@@ -65,4 +74,4 @@ Developed Principal Component Analysis from scratch. Applied k-medoids clusterin
 
 ## Знание языков
 - Английский C1 (TOEFL iBT, 2023 год)
-- Испанский B2 (DELE B2, 2025 год)
+- Испанский B2 (DELE B2, 2024 год)
