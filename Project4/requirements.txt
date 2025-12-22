@@ -1,0 +1,11 @@
+lxml
+PyPDF2
+spacy
+transformers
+torch
+pandas
+openpyxl
+pymorphy3
+fastapi
+uvicorn[standard]
+python-multipart
